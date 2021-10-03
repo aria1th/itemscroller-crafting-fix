@@ -35,6 +35,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeType;
@@ -1875,7 +1876,71 @@ public class InventoryUtils {
             }
         }
     }
+    public static Slot findSlotCustomNameStackableItem(HandledScreen <? extends ScreenHandler> gui){
+        List<Slot> slots = gui.getScreenHandler().slots;
+        for (Slot slot : slots){
+            if (slot.inventory instanceof PlayerInventory == false) {continue;}
+            ItemStack itemStack = slot.getStack();
+            if (itemStack.hasCustomName() && itemStack.getMaxCount() == 64 && itemStack.getCount() > 6){
+                return slot;
+            }
+        }
+        return null;
+    }
+    public static int findCustomNameStackableItem(){
+        PlayerInventory playerInventory = MinecraftClient.getInstance().player.getInventory();
+        for (int i=0 ; i<playerInventory.size(); i++){
+            ItemStack itemStack = playerInventory.getStack(i);
+            if (itemStack.hasCustomName() && itemStack.getMaxCount() == 64 && itemStack.getCount() > 6){
+                return i;
+            }
+        }
+        return -1;
+    }
+    public static boolean pushItemIntoFilterSlot(HandledScreen<? extends ScreenHandler> gui){
+        Slot namedItemSlot = findSlotCustomNameStackableItem(gui);
+        if (namedItemSlot == null){
+            return false;
+        }
+        moveOneItemToFilterSlots(gui, namedItemSlot);
+        return true;
+    }
+    private static Slot moveOneItemToFilterSlots(HandledScreen<? extends ScreenHandler> gui, Slot slotFrom) {
+        Slot lastSlot = null;
+        boolean isFirstSlot = true;
+        // Empty slot, nothing to do
+        if (slotFrom.hasStack() == false) {
+            return null;
+        }
+        List<Integer> slotsTo = getVerticallyFurthestSuitableSlotsForStackInSlot(gui.getScreenHandler(), slotFrom, true);
+        // Pick up the stack
+        leftClickSlot(gui, slotFrom.id);
+        for (int slotNum : slotsTo) {
+            if(isFirstSlot){
+                isFirstSlot = false;
+            }
+            else {
+            // Empty cursor, all done here
+            if (isStackEmpty(gui.getScreenHandler().getCursorStack())) {
+                break;
+            }
 
+            Slot dstSlot = gui.getScreenHandler().getSlot(slotNum);
+
+            if (dstSlot.canInsert(gui.getScreenHandler().getCursorStack()) && !dstSlot.hasStack()
+                    ) {
+                rightClickSlot(gui, slotNum);
+                lastSlot = dstSlot;
+            }}
+        }
+
+        // Return the rest of the items, if any
+        if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
+            leftClickSlot(gui, slotFrom.id);
+        }
+
+        return lastSlot;
+    }
     public static void dropStacksWhileHasItem(HandledScreen<? extends ScreenHandler> gui, int slotNum,
             ItemStack stackReference) {
         if (slotNum >= 0 && slotNum < gui.getScreenHandler().slots.size()) {
