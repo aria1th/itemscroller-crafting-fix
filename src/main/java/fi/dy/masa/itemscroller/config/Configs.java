@@ -20,6 +20,7 @@ import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigInteger;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import org.w3c.dom.xpath.XPathResult;
 
 public class Configs implements IConfigHandler
 {
@@ -70,6 +71,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean SHIFT_DROP_ITEMS          = new ConfigBoolean("enableShiftDropItems",             true, "Enables dropping all matching items at once by holding\nshift while clicking to drop a stack");
         public static final ConfigBoolean SHIFT_PLACE_ITEMS         = new ConfigBoolean("enableShiftPlaceItems",            true, "Enables moving all matching stacks at once by holding\nshift while placing items to an empty slot");
         public static final ConfigBoolean VILLAGER_TRADE_FEATURES   = new ConfigBoolean("enableVillagerTradeFeatures",      true, "Enable trade favoriting and quick trade features for villagers.\nNote: The Shift + scrolling over the output slot is a separate feature\nand not affected by this option.\nThis option enables middle clicking to mark favorite trades,\nand right clicking on the trade list to fully trade that one trade.");
+        public static final ConfigBoolean DO_FILTER_SETUP = new ConfigBoolean("enableFilterSetupFeatures", false, "Do filter setup with named items, will prevent other actions");
 
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
                 CRAFTING_FEATURES,
@@ -83,8 +85,10 @@ public class Configs implements IConfigHandler
                 SCROLL_VILLAGER,
                 SHIFT_DROP_ITEMS,
                 SHIFT_PLACE_ITEMS,
-                VILLAGER_TRADE_FEATURES
+                VILLAGER_TRADE_FEATURES,
+                DO_FILTER_SETUP
         );
+
     }
 
     public static final Set<String> GUI_BLACKLIST = new HashSet<>();
