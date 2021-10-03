@@ -1,5 +1,6 @@
 package fi.dy.masa.itemscroller.event;
 
+import net.minecraft.client.gui.screen.ingame.HopperScreen;
 import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -167,6 +168,11 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                 }
                 else
                 {
+                    if (InventoryUtils.findCustomNameStackableItem()!= -1 && Configs.Toggles.DO_FILTER_SETUP.getBooleanValue() && gui instanceof HopperScreen){
+                        if (InventoryUtils.pushItemIntoFilterSlot(gui)){
+                        gui.onClose();
+                        return true;}
+                    }
                     Slot slot = AccessorUtils.getSlotUnderMouse(gui);
                     final boolean isShiftDown = GuiBase.isShiftDown();
 
