@@ -72,7 +72,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean SHIFT_PLACE_ITEMS         = new ConfigBoolean("enableShiftPlaceItems",            true, "Enables moving all matching stacks at once by holding\nshift while placing items to an empty slot");
         public static final ConfigBoolean VILLAGER_TRADE_FEATURES   = new ConfigBoolean("enableVillagerTradeFeatures",      true, "Enable trade favoriting and quick trade features for villagers.\nNote: The Shift + scrolling over the output slot is a separate feature\nand not affected by this option.\nThis option enables middle clicking to mark favorite trades,\nand right clicking on the trade list to fully trade that one trade.");
         public static final ConfigBoolean DO_FILTER_SETUP = new ConfigBoolean("enableFilterSetupFeatures", false, "Do filter setup with named items, will prevent other actions");
-
+        public static final ConfigBoolean CLOSE_AFTER_FILTER = new ConfigBoolean("closeGuiAfterFilterSetup", false, "Closes filter GUI after filter setup");
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
                 CRAFTING_FEATURES,
                 DROP_MATCHING,
@@ -86,7 +86,8 @@ public class Configs implements IConfigHandler
                 SHIFT_DROP_ITEMS,
                 SHIFT_PLACE_ITEMS,
                 VILLAGER_TRADE_FEATURES,
-                DO_FILTER_SETUP
+                DO_FILTER_SETUP,
+                CLOSE_AFTER_FILTER
         );
 
     }
