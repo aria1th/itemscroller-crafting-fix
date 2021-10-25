@@ -152,7 +152,6 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             {
                 HandledScreen<?> gui = (HandledScreen<?>) GuiUtils.getCurrentScreen();
                 RecipeStorage recipes = RecipeStorage.getInstance();
-
                 if (dWheel != 0)
                 {
                     // When scrolling while the recipe view is open, change the selection instead of moving items
@@ -169,8 +168,9 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                 else
                 {
                     if (InventoryUtils.findCustomNameStackableItem()!= -1 && Configs.Toggles.DO_FILTER_SETUP.getBooleanValue() && gui instanceof HopperScreen){
-                        if (InventoryUtils.pushItemIntoFilterSlot(gui)){
-                        gui.onClose();
+                        if (InventoryUtils.pushItemIntoFilterSlot(gui) && Configs.Toggles.CLOSE_AFTER_FILTER.getBooleanValue()){
+                            gui.getScreenHandler().sendContentUpdates();
+                        mc.player.closeScreen();
                         return true;}
                     }
                     Slot slot = AccessorUtils.getSlotUnderMouse(gui);
@@ -225,7 +225,6 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
         return cancel;
     }
-
     @Override
     public void onMouseMove(int mouseX, int mouseY)
     {
