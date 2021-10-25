@@ -22,12 +22,15 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.itemscroller.villager.VillagerUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.ComparatorBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
@@ -1887,6 +1890,18 @@ public class InventoryUtils {
         }
         return null;
     }
+    public static Slot findSlotNamedStackableItem(HandledScreen <? extends ScreenHandler> gui, Item item){
+        List<Slot> slots = gui.getScreenHandler().slots;
+        for (Slot slot : slots){
+            if (slot.inventory instanceof PlayerInventory == false) {continue;}
+            ItemStack itemStack = slot.getStack();
+            if (!itemStack.hasCustomName() && itemStack.getMaxCount() == 64 && itemStack.getCount() > 2 && itemStack.isOf(item)){
+                return slot;
+            }
+        }
+        return null;
+    }
+
     public static int findCustomNameStackableItem(){
         PlayerInventory playerInventory = MinecraftClient.getInstance().player.getInventory();
         for (int i=0 ; i<playerInventory.size(); i++){
@@ -1898,45 +1913,78 @@ public class InventoryUtils {
         return -1;
     }
     public static boolean pushItemIntoFilterSlot(HandledScreen<? extends ScreenHandler> gui){
+        MinecraftClient mc = MinecraftClient.getInstance();
+        PlayerEntity player = mc.player;
+        ClientWorld world = mc.world;
+        Slot firstSlot;
+        Item item;
+        if (world.getBlockState(player.getBlockPos()).isOf(Blocks.COMPARATOR)){
+            item = world.getBlockState(player.getBlockPos().offset(world.getBlockState(player.getBlockPos()).get(ComparatorBlock.FACING)).up().up()).getBlock().asItem();
+            firstSlot = findSlotNamedStackableItem(gui, item);
+        }
+        else {
+            firstSlot = null;
+        }
         Slot namedItemSlot = findSlotCustomNameStackableItem(gui);
         if (namedItemSlot == null){
             return false;
         }
-        moveOneItemToFilterSlots(gui, namedItemSlot);
+        moveOneItemToFilterSlots(gui, namedItemSlot, firstSlot);
         return true;
     }
-    private static Slot moveOneItemToFilterSlots(HandledScreen<? extends ScreenHandler> gui, Slot slotFrom) {
+    private static Slot moveOneItemToFilterSlots(HandledScreen<? extends ScreenHandler> gui, Slot slotFrom, Slot firstSlot) {
         Slot lastSlot = null;
-        boolean isFirstSlot = true;
+        boolean isFirstSlot = (firstSlot != null);
+        boolean onlyOnce = true;
         // Empty slot, nothing to do
         if (slotFrom.hasStack() == false) {
             return null;
         }
         List<Integer> slotsTo = getVerticallyFurthestSuitableSlotsForStackInSlot(gui.getScreenHandler(), slotFrom, true);
         // Pick up the stack
-        leftClickSlot(gui, slotFrom.id);
+        Slot dstSlot;
+        Slot slotSelected = slotFrom;
         for (int slotNum : slotsTo) {
-            if(isFirstSlot){
-                isFirstSlot = false;
+            dstSlot = gui.getScreenHandler().getSlot(slotNum);
+            if(dstSlot.inventory instanceof PlayerInventory){continue;}
+            if (isFirstSlot){
+                if (firstSlot != null) {
+                    rightClickSlot(gui, firstSlot.id); //pick one
+                    slotSelected = firstSlot;
+                }
+                else {
+                    isFirstSlot = false;
+                    continue;
+                }
             }
-            else {
-            // Empty cursor, all done here
-            if (isStackEmpty(gui.getScreenHandler().getCursorStack())) {
+            else if (onlyOnce) {
+                leftClickSlot(gui, slotFrom.id);
+                slotSelected = slotFrom;
+                onlyOnce = false;
+                // Empty cursor, all done here
+            }
+            if (!onlyOnce && isStackEmpty(gui.getScreenHandler().getCursorStack())) {
                 break;
             }
 
-            Slot dstSlot = gui.getScreenHandler().getSlot(slotNum);
-
             if (dstSlot.canInsert(gui.getScreenHandler().getCursorStack()) && !dstSlot.hasStack()
-                    ) {
+            ) {
                 rightClickSlot(gui, slotNum);
                 lastSlot = dstSlot;
-            }}
+            }
+            if (isFirstSlot){
+                if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
+                    leftClickSlot(gui, slotSelected.id);
+                }
+                isFirstSlot = false;
+            }
+
+
         }
 
         // Return the rest of the items, if any
         if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
-            leftClickSlot(gui, slotFrom.id);
+            leftClickSlot(gui, slotSelected.id);
         }
 
         return lastSlot;
