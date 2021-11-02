@@ -1891,11 +1891,12 @@ public class InventoryUtils {
         return null;
     }
     public static Slot findSlotNamedStackableItem(HandledScreen <? extends ScreenHandler> gui, Item item){
+        if (item == Items.AIR){return null;}
         List<Slot> slots = gui.getScreenHandler().slots;
         for (Slot slot : slots){
             if (slot.inventory instanceof PlayerInventory == false) {continue;}
             ItemStack itemStack = slot.getStack();
-            if (!itemStack.hasCustomName() && itemStack.getMaxCount() == 64 && itemStack.getCount() > 2 && itemStack.isOf(item)){
+            if (!itemStack.hasCustomName() && itemStack.getMaxCount() == 64 && itemStack.getCount() >0 && itemStack.isOf(item)){
                 return slot;
             }
         }
@@ -1917,9 +1918,8 @@ public class InventoryUtils {
         PlayerEntity player = mc.player;
         ClientWorld world = mc.world;
         Slot firstSlot;
-        Item item;
-        if (world.getBlockState(player.getBlockPos()).isOf(Blocks.COMPARATOR)){
-            item = world.getBlockState(player.getBlockPos().offset(world.getBlockState(player.getBlockPos()).get(ComparatorBlock.FACING)).up().up()).getBlock().asItem();
+        Item item = FilterUtils.getTargetFromHopper(mc);
+        if (item != Items.AIR){
             firstSlot = findSlotNamedStackableItem(gui, item);
         }
         else {
@@ -1934,7 +1934,7 @@ public class InventoryUtils {
     }
     private static Slot moveOneItemToFilterSlots(HandledScreen<? extends ScreenHandler> gui, Slot slotFrom, Slot firstSlot) {
         Slot lastSlot = null;
-        boolean isFirstSlot = (firstSlot != null);
+        boolean doFirstSlot = true;
         boolean onlyOnce = true;
         // Empty slot, nothing to do
         if (slotFrom.hasStack() == false) {
@@ -1947,18 +1947,26 @@ public class InventoryUtils {
         for (int slotNum : slotsTo) {
             dstSlot = gui.getScreenHandler().getSlot(slotNum);
             if(dstSlot.inventory instanceof PlayerInventory){continue;}
-            if (isFirstSlot){
+            if (doFirstSlot){
                 if (firstSlot != null) {
-                    rightClickSlot(gui, firstSlot.id); //pick one
+                    if(firstSlot.getStack().getCount() == 1) {
+                        leftClickSlot(gui, firstSlot.id); //pick ALL
+                    } else {
+                        rightClickSlot(gui, firstSlot.id); //pick one
+                    }
                     slotSelected = firstSlot;
                 }
                 else {
-                    isFirstSlot = false;
+                    doFirstSlot = false;
                     continue;
                 }
             }
             else if (onlyOnce) {
-                leftClickSlot(gui, slotFrom.id);
+                if(slotFrom.getStack().getCount() == 1) {
+                    leftClickSlot(gui, slotFrom.id); //pick ALL
+                } else {
+                    rightClickSlot(gui, slotFrom.id); //pick one
+                }
                 slotSelected = slotFrom;
                 onlyOnce = false;
                 // Empty cursor, all done here
@@ -1967,16 +1975,22 @@ public class InventoryUtils {
                 break;
             }
 
+
             if (dstSlot.canInsert(gui.getScreenHandler().getCursorStack()) && !dstSlot.hasStack()
             ) {
-                rightClickSlot(gui, slotNum);
+                if (gui.getScreenHandler().getCursorStack().getCount() == 1){
+                    leftClickSlot(gui,slotNum);
+                }
+                else {
+                    rightClickSlot(gui, slotNum);
+                }
                 lastSlot = dstSlot;
             }
-            if (isFirstSlot){
+            if (doFirstSlot){
                 if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
                     leftClickSlot(gui, slotSelected.id);
                 }
-                isFirstSlot = false;
+                doFirstSlot = false;
             }
 
 
