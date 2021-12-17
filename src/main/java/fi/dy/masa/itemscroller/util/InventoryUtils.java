@@ -68,7 +68,7 @@ public class InventoryUtils {
             Identifier rl = Registry.ITEM.getId(stack.getItem());
 
             return String.format("[%s - display: %s - NBT: %s] (%s)", rl != null ? rl.toString() : "null",
-                    stack.getName().getString(), stack.getTag() != null ? stack.getTag().toString() : "<no NBT>",
+                    stack.getName().getString(), stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>",
                     stack.toString());
         }
 
@@ -1665,7 +1665,7 @@ public class InventoryUtils {
     }
 
     public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2) {
-        return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areTagsEqual(stack1, stack2);
+        return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areNbtEqual(stack1, stack2);
     }
 
     private static boolean areSlotsInSameInventory(Slot slot1, Slot slot2) {

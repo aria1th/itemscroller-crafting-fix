@@ -32,7 +32,7 @@ public class ItemType
         int result = 1;
         //result = prime * result + ((stack == null) ? 0 : stack.hashCode());
         result = prime * result + this.stack.getItem().hashCode();
-        result = prime * result + (this.stack.getTag() != null ? this.stack.getTag().hashCode() : 0);
+        result = prime * result + (this.stack.getNbt() != null ? this.stack.getNbt().hashCode() : 0);
         return result;
     }
 
@@ -60,7 +60,7 @@ public class ItemType
                 return false;
             }
 
-            return ItemStack.areTagsEqual(this.stack, other.stack);
+            return ItemStack.areNbtEqual(this.stack, other.stack);
         }
 
         return true;
