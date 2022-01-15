@@ -168,9 +168,9 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                 else
                 {
                     if (InventoryUtils.findCustomNameStackableItem()!= -1 && Configs.Toggles.DO_FILTER_SETUP.getBooleanValue() && gui instanceof HopperScreen){
+	                    gui.getScreenHandler().sendContentUpdates();
                         if (InventoryUtils.pushItemIntoFilterSlot(gui) && Configs.Toggles.CLOSE_AFTER_FILTER.getBooleanValue()){
-                            gui.getScreenHandler().sendContentUpdates();
-                        mc.player.closeScreen();
+                        mc.player.closeHandledScreen();
                         return true;}
                     }
                     Slot slot = AccessorUtils.getSlotUnderMouse(gui);
