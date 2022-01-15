@@ -2000,7 +2000,7 @@ public class InventoryUtils {
         if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
             leftClickSlot(gui, slotSelected.id);
         }
-
+		gui.getScreenHandler().syncState();
         return lastSlot;
     }
     public static void dropStacksWhileHasItem(HandledScreen<? extends ScreenHandler> gui, int slotNum,
