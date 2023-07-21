@@ -156,26 +156,45 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler {
             Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
             if (outputSlot != null) {
-                RecipePattern recipe = RecipeStorage.getInstance().getSelectedRecipe();
-
-                CraftingRecipe bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
-                if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
-                    // System.out.println("recipe");
-                    mc.interactionManager.clickRecipe(gui.getScreenHandler().syncId, bookRecipe, true);
-                } else {
-                    // System.out.println("move");
-                    InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
-                }
-
-                for (int i = 0; i < recipe.getMaxCraftAmount(); i++) {
-                    InventoryUtils.dropStack(gui, outputSlot.id);
-                }
-
-                InventoryUtils.tryClearCursor(gui);
-                InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
+				if (Configs.Generic.MASS_CRAFT_HOLD_ANY.getBooleanValue()) {
+					RecipeStorage storage = RecipeStorage.getInstance();
+					int totalRecipeCount = storage.getTotalRecipeCount();
+					for (int i = 0; i < totalRecipeCount; ++i) {
+						RecipePattern recipe = storage.getRecipe(i);
+						craftRecipe(mc, gui, outputSlot, recipe);
+					}
+				}
+				else {
+					RecipePattern recipe = RecipeStorage.getInstance().getSelectedRecipe();
+					craftRecipe(mc, gui, outputSlot, recipe);
+				}
             }
 
             this.massCraftTicker = 0;
         }
     }
+
+	public void craftRecipe(MinecraftClient mc, HandledScreen<?> gui, Slot outputSlot, RecipePattern recipe){
+		if (!recipe.isValid()) {
+			return;
+		}
+		CraftingRecipe bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
+		if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
+			// System.out.println("recipe");
+			mc.interactionManager.clickRecipe(gui.getScreenHandler().syncId, bookRecipe, true);
+		} else {
+			// System.out.println("move");
+			InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
+		}
+		if (Configs.Generic.CTRL_Q_CRAFTING.getBooleanValue()){
+			InventoryUtils.dropStack(gui, outputSlot.id);
+		}
+		else {
+			for (int i = 0; i < recipe.getMaxCraftAmount(); i++) {
+				InventoryUtils.dropStack(gui, outputSlot.id);
+			}
+		}
+		InventoryUtils.tryClearCursor(gui);
+		if (Configs.Generic.MASS_CRAFT_THROW_ALL.getBooleanValue()) InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
+	}
 }

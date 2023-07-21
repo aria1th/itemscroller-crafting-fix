@@ -28,6 +28,9 @@ public class Configs implements IConfigHandler
     public static class Generic
     {
         public static final ConfigBoolean MASS_CRAFT_HOLD                       = new ConfigBoolean("massCraftHold",                        false, "Mass craft continuously");
+		public static final ConfigBoolean MASS_CRAFT_HOLD_ANY = new ConfigBoolean("massCraftHoldAny", false, "Mass craft continuously for all recipes");
+	    public static final ConfigBoolean MASS_CRAFT_THROW_ALL = new ConfigBoolean("massCraftThrowAll", false, "Mass craft throws all matching items from your inventory even if it was not crafted result");
+	    public static final ConfigBoolean CTRL_Q_CRAFTING = new ConfigBoolean("ctrlQCrafting", false, "Drops whole stack if server supports it");
         public static final ConfigBoolean CRAFTING_RENDER_RECIPE_ITEMS          = new ConfigBoolean("craftingRenderRecipeItems",            true, "If enabled, then the recipe items are also rendered\nin the crafting recipe view.");
         public static final ConfigBoolean MOD_MAIN_TOGGLE                       = new ConfigBoolean("modMainToggle",                        true, "Can disable all the functionality of the entire mod");
         public static final ConfigBoolean DROP_RECIPE_REMAINDER                 = new ConfigBoolean("dropRecipeRemainder",                  true, "If enabled, recipe remainders are dropped.");
@@ -43,6 +46,9 @@ public class Configs implements IConfigHandler
 
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
                 MASS_CRAFT_HOLD,
+	            MASS_CRAFT_HOLD_ANY,
+	            CTRL_Q_CRAFTING,
+				MASS_CRAFT_THROW_ALL,
                 CRAFTING_RENDER_RECIPE_ITEMS,
                 MASS_CRAFT_INTERVAL,
                 MOD_MAIN_TOGGLE,
